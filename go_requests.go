@@ -10,7 +10,7 @@ import (
 func main() {
   poolId := 66
   trackId := 29355149
-  formatId := 14
+  formatId := 17
 
   u, err := urllib.CreateUrl(poolId, trackId, formatId)
 
@@ -21,13 +21,13 @@ func main() {
   debug.ShowUrl(u)
   
   res, err := http.Get(u.String())  
-  defer res.Body.Close()
 
   if err != nil {
-    log.Print("got an error from get")
     log.Fatal(err)
   }
 
+  defer res.Body.Close()
+  
   if res.StatusCode != http.StatusOK {
     log.Fatal(res.Status)
   }
