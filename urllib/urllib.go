@@ -3,14 +3,15 @@ package urllib
 import (
   "strconv"
   "net/url"
+  "fmt"
 ) 
  
-func CreateUrl(poolId, trackId, formatId int) (u *url.URL, err error) {
+func CreateUrl(urlFormat string, poolId, trackId, formatId int) (u *url.URL, err error) {
   p := strconv.Itoa(poolId)
   t := strconv.Itoa(trackId)
   f := strconv.Itoa(formatId)
    
-  rawUrl :=  "http://mediapool" + p + ".nix.sys.7d/track/" + t + "/format/" + f
+  rawUrl := fmt.Sprintf(urlFormat, p, t, f)
    
   u, err = url.ParseRequestURI(rawUrl)
   return
