@@ -12,6 +12,6 @@ func CreateUrl(poolId, trackId, formatId int) (u *url.URL, err error) {
    
   rawUrl :=  "http://mediapool" + p + ".nix.sys.7d/track/" + t + "/format/" + f
    
-  u, err = url.Parse(rawUrl)
+  u, err = url.ParseRequestURI(rawUrl)
   return
 }
