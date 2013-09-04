@@ -1,4 +1,4 @@
-package main
+package go_requests
 
 import (
   "fmt"
