@@ -4,6 +4,8 @@ import (
   "fmt"
   "strconv"
   "net/url"
+  "net/http"
+  "strings"
 )
 
 func createUrl(poolId, trackId, formatId int) (u *url.URL, err error) {
@@ -15,6 +17,14 @@ func createUrl(poolId, trackId, formatId int) (u *url.URL, err error) {
   
   u, err = url.Parse(rawUrl)
   return
+}
+
+func printInternalHeaders(res *http.Response) {
+  fmt.Println("Content Length:" + strconv.FormatInt(res.ContentLength,10))    
+  fmt.Println("Content-Type:" + strings.Join(res.Header["Content-Type"],","))  
+  fmt.Println("Content-Disposition:" + strings.Join(res.Header["Content-Disposition"],","))  
+  fmt.Println("X-7dig:" + strings.Join(res.Header["X-7dig"],","))    
+  fmt.Println("Last-Modified:" + strings.Join(res.Header["Last-Modified"],","))  
 }
 
 func main() {
@@ -30,5 +40,9 @@ func main() {
   }
 
   fmt.Println(u)
-  fmt.Println(err)
+  
+  res, err := http.Get(u.String())
+  defer res.Body.Close()
+
+  printInternalHeaders(res)  
 }
