@@ -8,18 +8,15 @@ import (
   "net/http"
 )
 
-func main() {
-  poolId := 66
-  trackId := 29355149
-  formatId := 17
+type configValues struct {
+  urlFormat string
+}
 
-  values, err := config.Read("config.csv")
-  
-  if err != nil {
-    log.Fatal(err)
-  }  
+func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-  u, err := urllib.CreateUrl(values["urlFormat"], poolId, trackId, formatId)
+  poolId, trackId, formatId := 66, 29355149, 17
+
+  u, err := urllib.CreateUrl(v.urlFormat, poolId, trackId, formatId)
 
   if err != nil {
     log.Fatal(err)
@@ -39,5 +36,26 @@ func main() {
     log.Fatal(res.Status)
   }
 
-  debug.PrintInternalHeaders(res)  
+  debug.PrintInternalHeaders(res) 
 }
+
+func main() {
+  path, port := "/", ":8888"  
+  log.Print("listening on " + path  + port)
+
+  v, err := config.Read("config.csv")  
+  if err != nil {
+    log.Fatal(err)
+  }  
+  
+  setValues := &configValues{urlFormat: v["urlFormat"]}
+  
+  http.Handle(path, setValues)
+
+  err = http.ListenAndServe(port,nil)
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+
+
