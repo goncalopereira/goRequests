@@ -4,12 +4,11 @@ import (
   "github.com/goncalopereira/go_requests/urllib"
   "github.com/goncalopereira/go_requests/debug"
   "github.com/goncalopereira/go_requests/config"
+  "github.com/goncalopereira/go_requests/httpdata"
   "log"
   "net/http"
   "fmt"
   "strconv"
-  "strings"
-  "io"
 )
 
 type configValues struct {
@@ -53,18 +52,7 @@ func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
   debug.PrintInternalHeaders(res) 
 
-  Send(w, res)
-}
-
-func Send(w http.ResponseWriter, res *http.Response) {
-  w.Header().Set("Content-Length", strconv.FormatInt(res.ContentLength,10))
-  w.Header().Set("Content-Type", strings.Join(res.Header["Content-Type"],","))
-  w.Header().Set("Content-Disposition", strings.Join(res.Header["Content-Disposition"],","))
-  w.Header().Set("X-7dig", strings.Join(res.Header["X-7dig"],","))
-  w.Header().Set("Last-Modified", strings.Join(res.Header["Last-Modified"],","))
-  w.WriteHeader(http.StatusOK)
-  
-  io.Copy(w, res.Body)
+  httpdata.CopyResponse(w, res)
 }
 
 func main() {
