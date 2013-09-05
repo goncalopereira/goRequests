@@ -2,7 +2,7 @@ package main
 
 import (
   "github.com/goncalopereira/go_requests/urllib"
-  //"github.com/goncalopereira/go_requests/debug"
+  "github.com/goncalopereira/go_requests/debug"
   "github.com/goncalopereira/go_requests/config"
   "log"
   "net/http"
@@ -18,7 +18,7 @@ type configValues struct {
 
 func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-//  log.Print(r.URL.String())
+  debug.ShowUrl(r.URL)
   
   values := r.URL.Query()
 
@@ -36,24 +36,30 @@ func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
   u, err := urllib.CreateUrl(v.urlFormat, poolId, trackId, formatId)
 
   if err != nil {
-    log.Fatal(err)
+    w.WriteHeader(http.StatusInternalServerError)
+    fmt.Fprintf(w, err.Error())
+    return    
   }
 
-//  debug.ShowUrl(u)
+  debug.ShowUrl(u)
   
   res, err := http.Get(u.String())  
 
   if err != nil {
-    log.Fatal(err)
+    w.WriteHeader(http.StatusInternalServerError)
+    fmt.Fprintf(w, err.Error())
+    return
   }
 
   defer res.Body.Close()
   
   if res.StatusCode != http.StatusOK {
-    log.Fatal(res.Status)
+    w.WriteHeader(http.StatusInternalServerError)
+    fmt.Fprintf(w, "Internal Error " + strconv.Itoa(res.StatusCode))
+    return
   }
 
-//  debug.PrintInternalHeaders(res) 
+  debug.PrintInternalHeaders(res) 
 
   Send(w, res)
 }
