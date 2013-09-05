@@ -6,6 +6,8 @@ import (
   "github.com/goncalopereira/go_requests/config"
   "log"
   "net/http"
+  "fmt"
+  "strconv"
 )
 
 type configValues struct {
@@ -14,7 +16,19 @@ type configValues struct {
 
 func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-  poolId, trackId, formatId := 66, 29355149, 17
+  log.Print(r.URL.String())
+  
+  values := r.URL.Query()
+
+ // http://localhost:8888/?trackId=29355149&formatId=17&poolId=66"  
+  if values["poolId"] == nil || values["trackId"] == nil || values["formatId"] == nil {
+    fmt.Fprintf(w, "missing parameters")
+    return
+  }
+
+  poolId, err := strconv.Atoi(values["poolId"][0])
+  trackId, err := strconv.Atoi(values["trackId"][0])
+  formatId, err := strconv.Atoi(values["formatId"][0])
 
   u, err := urllib.CreateUrl(v.urlFormat, poolId, trackId, formatId)
 
