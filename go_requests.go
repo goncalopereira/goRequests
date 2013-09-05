@@ -10,35 +10,15 @@ import (
   "strconv"
   "strings"
   "io"
-  "net/url"
-  "errors"
 )
 
 type configValues struct {
   urlFormat string
 }
 
-func RequestValidation(u *url.URL) (poolId, trackId, formatId int, err error) {
- 
-  debug.ShowUrl(u)
-  
-  values := u.Query()
-
- // http://localhost:8888/?trackId=29355149&formatId=17&poolId=66"  
-  if values["poolId"] == nil || values["trackId"] == nil || values["formatId"] == nil {
-    err = errors.New("missing parameters")
-    return
-  }
-
-  poolId, err = strconv.Atoi(values["poolId"][0])
-  trackId, err = strconv.Atoi(values["trackId"][0])
-  formatId, err = strconv.Atoi(values["formatId"][0]) 
-  return
-}
-
 func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-  poolId, trackId, formatId, err := RequestValidation(r.URL)
+  poolId, trackId, formatId, err := urllib.RequestValidation(r.URL)
   
   if err != nil {
     w.WriteHeader(http.StatusBadRequest)
