@@ -10,28 +10,40 @@ import (
   "strconv"
   "strings"
   "io"
+  "net/url"
+  "errors"
 )
 
 type configValues struct {
   urlFormat string
 }
 
-func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-  debug.ShowUrl(r.URL)
+func RequestValidation(u *url.URL) (poolId, trackId, formatId int, err error) {
+ 
+  debug.ShowUrl(u)
   
-  values := r.URL.Query()
+  values := u.Query()
 
  // http://localhost:8888/?trackId=29355149&formatId=17&poolId=66"  
   if values["poolId"] == nil || values["trackId"] == nil || values["formatId"] == nil {
-    w.WriteHeader(http.StatusBadRequest)
-    fmt.Fprintf(w, "missing parameters")
+    err = errors.New("missing parameters")
     return
   }
 
-  poolId, err := strconv.Atoi(values["poolId"][0])
-  trackId, err := strconv.Atoi(values["trackId"][0])
-  formatId, err := strconv.Atoi(values["formatId"][0])
+  poolId, err = strconv.Atoi(values["poolId"][0])
+  trackId, err = strconv.Atoi(values["trackId"][0])
+  formatId, err = strconv.Atoi(values["formatId"][0]) 
+  return
+}
+
+func (v *configValues) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+  poolId, trackId, formatId, err := RequestValidation(r.URL)
+  
+  if err != nil {
+    w.WriteHeader(http.StatusBadRequest)
+    fmt.Fprintf(w,err.Error())
+  }
 
   u, err := urllib.CreateUrl(v.urlFormat, poolId, trackId, formatId)
 
